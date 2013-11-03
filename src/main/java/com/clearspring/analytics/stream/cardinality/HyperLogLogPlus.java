@@ -142,6 +142,16 @@ public class HyperLogLogPlus implements ICardinality
     private int[] tmpSet;
     private int tmpIndex = 0;
     private int[] sparseSet;
+    
+    /**
+     * Makes the set return to a state of containing no elements, but otherwise
+     * does not change it.  For instance, the "format" does not change.
+     */
+    public void reset() {
+        tmpIndex = 0;
+        registerSet.reset();
+        sparseSet = null;
+    }
 
     /**
      * This constructor disables the sparse set.  If the counter is likely to exceed
@@ -802,6 +812,13 @@ public class HyperLogLogPlus implements ICardinality
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
+        write(dos);
+        dos.flush();
+        return baos.toByteArray();
+    }
+
+    public void write(DataOutputStream dos) throws IOException
+    {
         // write version flag (always negative)
         dos.writeInt(-VERSION);
         dos.write(Varint.writeUnsignedVarInt(p));
@@ -828,8 +845,6 @@ public class HyperLogLogPlus implements ICardinality
                 }
                 break;
         }
-
-        return baos.toByteArray();
     }
 
     /**

@@ -16,6 +16,8 @@
 
 package com.clearspring.analytics.stream.cardinality;
 
+import java.util.Arrays;
+
 public class RegisterSet
 {
     public final static int LOG2_BITS_PER_WORD = 6;
@@ -116,5 +118,10 @@ public class RegisterSet
         int[] copy = new int[size];
         System.arraycopy(M, 0, copy, 0, M.length);
         return copy;
+    }
+    
+    public void reset()
+    {
+        Arrays.fill(M, 0);
     }
 }

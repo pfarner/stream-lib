@@ -16,16 +16,21 @@
 
 package com.clearspring.analytics.stream.cardinality;
 
-import com.clearspring.analytics.util.Varint;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import com.clearspring.analytics.util.Varint;
 
 
 public class TestHyperLogLogPlus
@@ -444,5 +449,37 @@ public class TestHyperLogLogPlus
 
         assertTrue(mergedEstimate >= expectedCardinality - (3 * se));
         assertTrue(mergedEstimate <= expectedCardinality + (3 * se));
+    }
+    
+    @Test
+    public void testReset()
+    {
+        final int N = 100;
+        final HyperLogLogPlus sparseHyperLogLogPlus1 = new HyperLogLogPlus(14,16);
+        final HyperLogLogPlus normalHyperLogLogPlus1 = new HyperLogLogPlus(14);
+        for (int n=0; n<N; ++n)
+        {
+            assertEquals(n, normalHyperLogLogPlus1.cardinality(), n*0.03);
+            assertEquals(n, sparseHyperLogLogPlus1.cardinality(), n*0.03);
+            normalHyperLogLogPlus1.offer(Integer.toString(n));
+            sparseHyperLogLogPlus1.offer(Integer.toString(n));
+        }
+        normalHyperLogLogPlus1.reset();
+        sparseHyperLogLogPlus1.reset();
+        assertEquals(0, normalHyperLogLogPlus1.cardinality());
+        assertEquals(0, sparseHyperLogLogPlus1.cardinality());
+        final HyperLogLogPlus sparseHyperLogLogPlus2 = new HyperLogLogPlus(14,16);
+        final HyperLogLogPlus normalHyperLogLogPlus2 = new HyperLogLogPlus(14);
+        for (int n=0; n<N; ++n)
+        {
+            assertEquals(normalHyperLogLogPlus1.cardinality(), normalHyperLogLogPlus1.cardinality());
+            assertEquals(sparseHyperLogLogPlus1.cardinality(), sparseHyperLogLogPlus1.cardinality());
+            assertEquals(n, normalHyperLogLogPlus1.cardinality(), n*0.03);
+            assertEquals(n, sparseHyperLogLogPlus1.cardinality(), n*0.03);
+            normalHyperLogLogPlus1.offer(Integer.toString(n));
+            sparseHyperLogLogPlus1.offer(Integer.toString(n));
+            normalHyperLogLogPlus2.offer(Integer.toString(n));
+            sparseHyperLogLogPlus2.offer(Integer.toString(n));
+        }
     }
 }
